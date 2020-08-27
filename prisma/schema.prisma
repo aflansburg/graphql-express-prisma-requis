@@ -1,0 +1,2560 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model additional_fees {
+  id          Int      @default(autoincrement()) @id
+  sale_id     Int
+  name        String?
+  description String?
+  amount      Float?
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model addresses {
+  id                    Int      @default(autoincrement()) @id
+  full_name             String?
+  line_one              String?
+  line_two              String?
+  city                  String?
+  state_province_region String?
+  postal_code           String?
+  country               String?
+  company_id            Int
+  created_at            DateTime
+  updated_at            DateTime
+  description           String?
+  point_of_contact_info String?
+  is_billing_address    Boolean?
+
+  @@index([company_id], name: "index_addresses_on_company_id")
+}
+
+model admin_invoices {
+  id               Int      @default(autoincrement()) @id
+  sale_id          Int?
+  payment_info     String?
+  transaction_info String?
+  buyer_info       String?
+  buyer_email      String?
+  cc_emails        String?
+  created_at       DateTime
+  updated_at       DateTime
+  sales            sales?   @relation(fields: [sale_id], references: [id])
+
+  @@index([sale_id], name: "index_admin_invoices_on_sale_id")
+}
+
+model announcements {
+  id                 Int      @default(autoincrement()) @id
+  title              String?
+  body               String?
+  media              String?
+  icon               String?
+  created_by_user_id Int?
+  created_at         DateTime
+  updated_at         DateTime
+}
+
+model api_keys {
+  id           Int      @default(autoincrement()) @id
+  access_token String
+  description  String?
+  created_at   DateTime
+  updated_at   DateTime
+  company_id   Int
+}
+
+model ar_internal_metadata {
+  key        String   @id
+  value      String?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model asset_attachments {
+  id              Int            @default(autoincrement()) @id
+  attachment      String?
+  attachment_type String?
+  asset_record_id Int?
+  created_at      DateTime
+  updated_at      DateTime
+  asset_records   asset_records? @relation(fields: [asset_record_id], references: [id])
+
+  @@index([asset_record_id], name: "index_asset_attachments_on_asset_record_id")
+}
+
+model asset_images {
+  id              Int      @default(autoincrement()) @id
+  image           String?
+  asset_record_id Int?
+  created_at      DateTime
+  updated_at      DateTime
+}
+
+model asset_records {
+  id                            Int                          @default(autoincrement()) @id
+  sku                           String?
+  model                         String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  user_id                       Int
+  category                      String?                      @default("none")
+  manufacturer                  String?
+  quantity                      Int                          @default(0)
+  condition                     String?
+  original_purchase_price       Float?
+  images                        String[]
+  minimum_offer_amount_per_unit Float?
+  buy_now_amount                Float?                       @default(0)
+  country                       String?
+  listing_period_start          DateTime?
+  listing_period_end            DateTime?
+  description                   String?
+  name                          String?
+  cert_links                    String[]
+  catalog_links                 String[]
+  spec_links                    String[]
+  status                        Int?                         @default(0)
+  team_id                       Int?
+  bulk_upload_id                Int?
+  currency                      String?                      @default("USD")
+  sale_id                       Int?
+  company_id                    Int
+  subcategory                   String?                      @default("none")
+  additional_fields             Json                         @default("{}")
+  package_id                    Int?
+  seller_terms                  String?
+  internal_marketplace_id       Int?
+  listed_at                     DateTime?
+  shipping_dimensions           String?
+  shipping_weight               String?
+  address_id                    Int?
+  // This type is currently not supported.
+  // search_vector              textSearch?
+  units                         String?
+  size1                         String?
+  size2                         String?
+  state_province                String?
+  location                      String?
+  lead_time                     String?
+  packaged                      String?
+  is_hazmat                     String?
+  msds_links                    String?
+  spare_part                    Boolean?                     @default(false)
+  last_offer                    Float?
+  uuid                          String?
+  sale_method                   Int                          @default(2)
+  buy_now_enabled               Boolean?                     @default(false)
+  city                          String?
+  state                         String?
+  un_segment_code               Int?
+  un_segment                    String?
+  un_family_code                Int?
+  un_family                     String?
+  un_class_code                 Int?
+  un_class                      String?
+  un_commodity_code             Int?
+  un_commodity                  String?
+  inventory_type                String?
+  un_categories                 Json?
+  show_minimum_offer_amount     Boolean?                     @default(false)
+  companies                     companies                    @relation(fields: [company_id], references: [id])
+  internal_marketplaces         internal_marketplaces?       @relation(fields: [internal_marketplace_id], references: [id])
+  users                         users                        @relation(fields: [user_id], references: [id])
+  asset_attachments             asset_attachments[]
+  // offer_asset_records        offer_asset_records[]
+  requisition_items             requisition_items[]
+  user_watched_asset_records    user_watched_asset_records[]
+
+  @@index([address_id], name: "index_asset_records_on_address_id")
+  @@index([bulk_upload_id], name: "index_asset_records_on_bulk_upload_id")
+  @@index([company_id], name: "index_asset_records_on_company_id")
+  @@index([country], name: "index_asset_records_on_country")
+  @@index([internal_marketplace_id], name: "index_asset_records_on_internal_marketplace_id")
+  @@index([sale_id], name: "index_asset_records_on_sale_id")
+  @@index([status], name: "index_asset_records_on_status")
+  @@index([team_id], name: "index_asset_records_on_team_id")
+  @@index([user_id], name: "index_asset_records_on_user_id")
+}
+
+model auctions {
+  id               Int       @default(autoincrement()) @id
+  start_datetime   DateTime?
+  end_datetime     DateTime?
+  company_id       Int?
+  user_id          Int?
+  auto_extend      Int?
+  created_at       DateTime
+  updated_at       DateTime
+  start_price      Float?
+  reserve_price    Float?
+  auctionable_id   Int?
+  auctionable_type String?
+  unlisted         Boolean?
+  bid_increment    Int?      @default(100)
+}
+
+model banners {
+  id            Int      @default(autoincrement()) @id
+  header        String?
+  icon          String?
+  tagline       String?
+  button_text   String?
+  button_link   String?
+  display_order Int?
+  active        Boolean? @default(false)
+  created_at    DateTime
+  updated_at    DateTime
+}
+
+model bids {
+  id         Int        @default(autoincrement()) @id
+  company_id Int?
+  created_at DateTime
+  updated_at DateTime
+  user_id    Int?
+  amount     Float?
+  auction_id Int?
+  companies  companies? @relation(fields: [company_id], references: [id])
+
+  @@index([company_id], name: "index_bids_on_company_id")
+  @@index([user_id], name: "index_bids_on_user_id")
+}
+
+model bulk_uploads {
+  id                  Int        @default(autoincrement()) @id
+  upload_type         String?
+  user_id             Int?
+  team_id             Int?
+  created_at          DateTime
+  updated_at          DateTime
+  upload_number       Int?
+  description         String?
+  asset_records_count Int?
+  company_id          Int?
+  uuid                String?
+  companies           companies? @relation(fields: [company_id], references: [id])
+  teams               teams?     @relation(fields: [team_id], references: [id])
+  users               users?     @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_bulk_uploads_on_company_id")
+  @@index([team_id], name: "index_bulk_uploads_on_team_id")
+  @@index([user_id], name: "index_bulk_uploads_on_user_id")
+}
+
+model buyer_hse_observations {
+  id                          Int                        @default(autoincrement()) @id
+  buyer_hse_recommendation_id Int?
+  body                        String?
+  created_at                  DateTime
+  updated_at                  DateTime
+  buyer_hse_recommendations   buyer_hse_recommendations? @relation(fields: [buyer_hse_recommendation_id], references: [id])
+
+  @@index([buyer_hse_recommendation_id], name: "index_buyer_hse_observations_on_buyer_hse_recommendation_id")
+}
+
+model buyer_hse_recommendations {
+  id                                                      Int                                            @default(autoincrement()) @id
+  supplier_registration_form_id                           Int?
+  company_id                                              Int?
+  status                                                  String?                                        @default("new")
+  supplier_cleared_to_proceed                             Boolean?                                       @default(false)
+  supplier_concern_to_proceed                             Boolean?                                       @default(false)
+  supplier_prequalification_comments                      String?
+  supplier_not_suitable                                   Boolean?                                       @default(false)
+  hse_assessor_name                                       String?
+  field_verficiation_carried_out                          Boolean?                                       @default(false)
+  assessor_name                                           String?
+  reviewer_name                                           String?
+  associated_csg_hydrocarbon_upstream                     Boolean?                                       @default(false)
+  associated_csg_hydrocarbon_downstream                   Boolean?                                       @default(false)
+  associated_csg_power_non_nuclear                        Boolean?                                       @default(false)
+  associated_csg_power_nuclear                            Boolean?                                       @default(false)
+  associated_csg_mining_and_metals                        Boolean?                                       @default(false)
+  associated_csg_infrastructure                           Boolean?                                       @default(false)
+  party_screening_denied_status                           Boolean?                                       @default(false)
+  party_screening_clear_status                            Boolean?                                       @default(false)
+  date_of_last_check                                      DateTime?
+  export_restrictions                                     Boolean?                                       @default(false)
+  distribution_procurement_to_attach_in_supplier_database Boolean?                                       @default(false)
+  created_at                                              DateTime
+  updated_at                                              DateTime
+  hse_recommendation_date                                 DateTime?
+  location_of_assessment                                  String?
+  date_of_assessment                                      DateTime?
+  approve_reject_date                                     DateTime?
+  ethics_policies_assessment                              String?
+  ethics_policies_comments                                String?
+  company_profile_codes_and_standards_form_id             Int?
+  company_profile_hse_form_id                             Int?
+  ethics_due_diligence_assessment                         String?                                        @default("Not Evaluated")
+  ethics_due_diligence_comments                           String?
+  ethics_overall_assessment                               String?
+  ethics_overall_comments                                 String?
+  ethics_approving_reviewer                               String?
+  ethics_approval_date                                    DateTime?
+  general_ethics_approved                                 Boolean?                                       @default(false)
+  companies                                               companies?                                     @relation(fields: [company_id], references: [id])
+  company_profile_codes_and_standards_forms               company_profile_codes_and_standards_forms?     @relation(fields: [company_profile_codes_and_standards_form_id], references: [id])
+  company_profile_hse_forms                               company_profile_hse_forms?                     @relation(fields: [company_profile_hse_form_id], references: [id])
+  supplier_registration_forms                             supplier_registration_forms?                   @relation(fields: [supplier_registration_form_id], references: [id])
+  buyer_hse_observations                                  buyer_hse_observations[]
+  ethics_compliance_report_uploads                        ethics_compliance_report_uploads[]
+  supplier_registration_form_feedback_comments            supplier_registration_form_feedback_comments[]
+
+  @@index([company_profile_codes_and_standards_form_id], name: "idx_buyer_hse_recommendations")
+  @@index([supplier_registration_form_id], name: "idx_supplier_buyer_hse_rec_reg_form")
+  @@index([company_id], name: "index_buyer_hse_recommendations_on_company_id")
+  @@index([company_profile_hse_form_id], name: "index_buyer_hse_recommendations_on_company_profile_hse_form_id")
+  @@unique([company_id, supplier_registration_form_id], name: "index_company_id_supplier_registration_form_id")
+}
+
+model buyer_proof_of_payments {
+  id             Int      @default(autoincrement()) @id
+  sale_id        Int?
+  bank_name      String?
+  account_number String?
+  total_sent     Float?
+  notes          String?
+  attachment     String?
+  created_at     DateTime
+  updated_at     DateTime
+  sales          sales?   @relation(fields: [sale_id], references: [id])
+
+  @@index([sale_id], name: "index_buyer_proof_of_payments_on_sale_id")
+}
+
+model buyer_suppliers {
+  id                                                       Int        @default(autoincrement()) @id
+  supplier_company_id                                      Int?
+  buyer_company_id                                         Int?
+  created_at                                               DateTime
+  updated_at                                               DateTime
+  companies_buyer_suppliers_buyer_company_idTocompanies    companies? @relation("buyer_suppliers_buyer_company_idTocompanies", fields: [buyer_company_id], references: [id])
+  companies_buyer_suppliers_supplier_company_idTocompanies companies? @relation("buyer_suppliers_supplier_company_idTocompanies", fields: [supplier_company_id], references: [id])
+
+  @@index([buyer_company_id], name: "index_buyer_suppliers_on_buyer_company_id")
+  @@index([supplier_company_id], name: "index_buyer_suppliers_on_supplier_company_id")
+}
+
+model categories {
+  id            Int             @default(autoincrement()) @id
+  name          String
+  created_at    DateTime
+  updated_at    DateTime
+  subcategories subcategories[]
+}
+
+model checkouts {
+  id                       Int      @default(autoincrement()) @id
+  sale_id                  Int
+  created_at               DateTime
+  updated_at               DateTime
+  submitted_payment        Boolean? @default(false)
+  received_goods           Boolean? @default(false)
+  released_payment         Boolean? @default(false)
+  shipping_address         String?
+  shipping_details         String?
+  saved_shipping_info      Boolean  @default(false)
+  completed_payment        Boolean  @default(false)
+  shipment_marked_received Boolean  @default(false)
+  wire_confirmation        String?
+  details_for_seller       String?
+  payment_marked_received  Boolean? @default(false)
+  status                   Int?     @default(0)
+  sales                    sales    @relation(fields: [sale_id], references: [id])
+
+  @@index([sale_id], name: "index_checkouts_on_sale_id")
+}
+
+model codes_and_standards_certificate_uploads {
+  id                                          Int                          @default(autoincrement()) @id
+  supplier_registration_form_id               Int?
+  attachment                                  String?
+  created_at                                  DateTime
+  updated_at                                  DateTime
+  company_id                                  Int?
+  company_profile_codes_and_standards_form_id Int?
+  supplier_registration_forms                 supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_profile_codes_and_standards_form_id], name: "idx_certificate_uploads")
+  @@index([supplier_registration_form_id], name: "idx_codes_and_standards_certificate_uploads")
+  @@index([company_id], name: "index_codes_and_standards_certificate_uploads_on_company_id")
+}
+
+model codes_and_standards_other_doc_uploads {
+  id                                          Int                          @default(autoincrement()) @id
+  supplier_registration_form_id               Int?
+  attachment                                  String?
+  created_at                                  DateTime
+  updated_at                                  DateTime
+  company_id                                  Int?
+  company_profile_codes_and_standards_form_id Int?
+  supplier_registration_forms                 supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_codes_and_standards_other_doc_uploads")
+  @@index([company_profile_codes_and_standards_form_id], name: "idx_other_doc_uploads")
+  @@index([company_id], name: "index_codes_and_standards_other_doc_uploads_on_company_id")
+}
+
+model commercial_evaluation_bid_summaries {
+  id            Int      @default(autoincrement()) @id
+  rfq_id        Int
+  rfq_bid_id    Int
+  summary_notes String?
+  created_at    DateTime
+  updated_at    DateTime
+  acceptable    Boolean? @default(false)
+  rfq_bids      rfq_bids @relation(fields: [rfq_bid_id], references: [id])
+  rfqs          rfqs     @relation(fields: [rfq_id], references: [id])
+
+  @@index([rfq_bid_id], name: "index_commercial_evaluation_bid_summaries_on_rfq_bid_id")
+  @@index([rfq_id], name: "index_commercial_evaluation_bid_summaries_on_rfq_id")
+}
+
+model commercial_questions {
+  id                   Int                    @default(autoincrement()) @id
+  rfq_id               Int
+  company_id           Int
+  user_id              Int
+  question_type        Int                    @default(0)
+  content              String
+  header               String?
+  subheader            String?
+  created_at           DateTime
+  updated_at           DateTime
+  companies            companies              @relation(fields: [company_id], references: [id])
+  rfqs                 rfqs                   @relation(fields: [rfq_id], references: [id])
+  users                users                  @relation(fields: [user_id], references: [id])
+  commercial_responses commercial_responses[]
+
+  @@index([company_id], name: "index_commercial_questions_on_company_id")
+  @@index([rfq_id], name: "index_commercial_questions_on_rfq_id")
+  @@index([user_id], name: "index_commercial_questions_on_user_id")
+}
+
+model commercial_responses {
+  id                                Int                              @default(autoincrement()) @id
+  rfq_id                            Int
+  rfq_bid_id                        Int
+  company_id                        Int
+  commercial_question_id            Int
+  user_id                           Int?
+  content                           String?
+  accepted                          Boolean?
+  feedback                          String?
+  created_at                        DateTime
+  updated_at                        DateTime
+  rfq_communication_thread_group_id Int?
+  commercial_questions              commercial_questions             @relation(fields: [commercial_question_id], references: [id])
+  companies                         companies                        @relation(fields: [company_id], references: [id])
+  rfq_bids                          rfq_bids                         @relation(fields: [rfq_bid_id], references: [id])
+  rfq_communication_thread_groups   rfq_communication_thread_groups? @relation(fields: [rfq_communication_thread_group_id], references: [id])
+  rfqs                              rfqs                             @relation(fields: [rfq_id], references: [id])
+  users                             users?                           @relation(fields: [user_id], references: [id])
+
+  @@index([commercial_question_id], name: "index_commercial_responses_on_commercial_question_id")
+  @@index([company_id], name: "index_commercial_responses_on_company_id")
+  @@index([rfq_bid_id], name: "index_commercial_responses_on_rfq_bid_id")
+  @@index([rfq_communication_thread_group_id], name: "index_commercial_responses_on_rfq_communication_thread_group_id")
+  @@index([rfq_id], name: "index_commercial_responses_on_rfq_id")
+  @@index([user_id], name: "index_commercial_responses_on_user_id")
+  @@unique([rfq_bid_id, commercial_question_id], name: "index_commercial_response_uniqueness")
+}
+
+model companies {
+  id                                                                                   Int                                         @default(autoincrement()) @id
+  name                                                                                 String                                      @unique
+  country                                                                              String?
+  industry                                                                             String?
+  created_at                                                                           DateTime
+  updated_at                                                                           DateTime
+  approved_by_global_admin                                                             Boolean                                     @default(false)
+  banking_account_number                                                               String?
+  banking_routing_number                                                               String?
+  phone_number                                                                         String?
+  fax_number                                                                           String?
+  bank_name                                                                            String?
+  screen_name                                                                          String?                                     @default("Private Company")
+  slug_name                                                                            String
+  sale_transaction_fee                                                                 Float                                       @default(12.5)
+  profile_pic                                                                          String?
+  profile_copy                                                                         String?
+  annual_revenue                                                                       String?
+  product_certifications                                                               String[]
+  business_type                                                                        String?
+  certifications                                                                       String[]
+  year_established                                                                     Int?
+  company_type                                                                         String[]
+  procure_transaction_fee                                                              Float?                                      @default(0)
+  parent_company_name                                                                  String?
+  website                                                                              String?
+  users_count                                                                          Int?
+  salesforce_accounts_id                                                               Int?
+  salesforce_accounts_companies_salesforce_accounts_idTosalesforce_accounts            salesforce_accounts?                        @relation("companies_salesforce_accounts_idTosalesforce_accounts", fields: [salesforce_accounts_id], references: [id])
+  asset_records                                                                        asset_records[]
+  bids                                                                                 bids[]
+  bulk_uploads                                                                         bulk_uploads[]
+  buyer_hse_recommendations                                                            buyer_hse_recommendations[]
+  buyer_suppliers_buyer_suppliers_buyer_company_idTocompanies                          buyer_suppliers[]                           @relation("buyer_suppliers_buyer_company_idTocompanies")
+  buyer_suppliers_buyer_suppliers_supplier_company_idTocompanies                       buyer_suppliers[]                           @relation("buyer_suppliers_supplier_company_idTocompanies")
+  commercial_questions                                                                 commercial_questions[]
+  commercial_responses                                                                 commercial_responses[]
+  company_banks                                                                        company_banks[]
+  company_contacts_companiesTocompany_contacts_company_id                              company_contacts[]                          @relation("companiesTocompany_contacts_company_id")
+  company_contacts_companiesTocompany_contacts_contact_id                              company_contacts[]                          @relation("companiesTocompany_contacts_contact_id")
+  company_profile_codes_and_standards_forms                                            company_profile_codes_and_standards_forms[]
+  company_profile_hse_forms                                                            company_profile_hse_forms[]
+  company_registration_forms                                                           company_registration_forms?
+  company_relationships_companiesTocompany_relationships_child_id                      company_relationships[]                     @relation("companiesTocompany_relationships_child_id")
+  company_relationships_companiesTocompany_relationships_parent_id                     company_relationships[]                     @relation("companiesTocompany_relationships_parent_id")
+  company_settings                                                                     company_settings?
+  company_signup_links                                                                 company_signup_links[]
+  project_commercial_questions                                                         project_commercial_questions[]
+  project_members                                                                      project_members[]
+  projects                                                                             projects[]
+  relationship_requests_companiesTorelationship_requests_acceptor_id                   relationship_requests[]                     @relation("companiesTorelationship_requests_acceptor_id")
+  relationship_requests_companiesTorelationship_requests_requestor_id                  relationship_requests[]                     @relation("companiesTorelationship_requests_requestor_id")
+  requisition_comments                                                                 requisition_comments[]
+  requisition_item_comments                                                            requisition_item_comments[]
+  requisitions_companiesTorequisitions_buyer_company_id                                requisitions[]                              @relation("companiesTorequisitions_buyer_company_id")
+  requisitions_companiesTorequisitions_seller_company_id                               requisitions[]                              @relation("companiesTorequisitions_seller_company_id")
+  rfq_audit_log_entries                                                                rfq_audit_log_entries[]
+  rfq_bid_itemized_prices                                                              rfq_bid_itemized_prices[]
+  rfq_commercial_docs                                                                  rfq_commercial_docs[]
+  rfq_communication_threads_companiesTorfq_communication_threads_rfq_buyer_company_id  rfq_communication_threads[]                 @relation("companiesTorfq_communication_threads_rfq_buyer_company_id")
+  rfq_communication_threads_companiesTorfq_communication_threads_rfq_vendor_company_id rfq_communication_threads[]                 @relation("companiesTorfq_communication_threads_rfq_vendor_company_id")
+  rfq_deliverable_items                                                                rfq_deliverable_items[]
+  rfq_messages_companiesTorfq_messages_rfq_company_message_receiver_id                 rfq_messages[]                              @relation("companiesTorfq_messages_rfq_company_message_receiver_id")
+  rfq_messages_companiesTorfq_messages_rfq_company_message_sender_id                   rfq_messages[]                              @relation("companiesTorfq_messages_rfq_company_message_sender_id")
+  rfq_technical_docs                                                                   rfq_technical_docs[]
+  rfqs                                                                                 rfqs[]
+  sales_companiesTosales_buyer_company_id                                              sales[]                                     @relation("companiesTosales_buyer_company_id")
+  sales_companiesTosales_seller_company_id                                             sales[]                                     @relation("companiesTosales_seller_company_id")
+  salesforce_accounts_companiesTosalesforce_accounts_company_id                        salesforce_accounts[]                       @relation("companiesTosalesforce_accounts_company_id")
+  shopping_lists                                                                       shopping_lists[]
+  subscriptions                                                                        subscriptions[]
+  supplier_profiles                                                                    supplier_profiles[]
+  supplier_qualifications                                                              supplier_qualifications[]
+  supplier_registration_forms                                                          supplier_registration_forms[]
+  technical_questions                                                                  technical_questions[]
+  technical_responses                                                                  technical_responses[]
+
+  @@index([salesforce_accounts_id], name: "index_companies_on_salesforce_accounts_id")
+}
+
+model companies_internal_marketplaces {
+  internal_marketplace_id Int
+  company_id              Int
+
+  @@index([internal_marketplace_id], name: "idx_companies_internal_marketplaces_on_internal_marketplace_id")
+  @@index([company_id], name: "index_companies_internal_marketplaces_on_company_id")
+  @@unique([company_id, internal_marketplace_id], name: "index_unique_company_id_and_internal_marketplace_id")
+}
+
+model companies_verticals {
+  id          Int  @default(autoincrement()) @id
+  company_id  Int?
+  vertical_id Int?
+}
+
+model company_banks {
+  id             Int        @default(autoincrement()) @id
+  name           String?
+  address        String?
+  contact        String?
+  routing_number String?
+  account_number String?
+  company_id     Int?
+  created_at     DateTime
+  updated_at     DateTime
+  companies      companies? @relation(fields: [company_id], references: [id])
+
+  @@index([company_id], name: "index_company_banks_on_company_id")
+}
+
+model company_contacts {
+  id                                               Int       @default(autoincrement()) @id
+  company_id                                       Int
+  contact_id                                       Int
+  status                                           Int?      @default(0)
+  created_at                                       DateTime
+  updated_at                                       DateTime
+  companies_companiesTocompany_contacts_company_id companies @relation("companiesTocompany_contacts_company_id", fields: [company_id], references: [id])
+  companies_companiesTocompany_contacts_contact_id companies @relation("companiesTocompany_contacts_contact_id", fields: [contact_id], references: [id])
+
+  @@index([company_id], name: "index_company_contacts_on_company_id")
+  @@index([contact_id], name: "index_company_contacts_on_contact_id")
+  @@unique([company_id, contact_id], name: "index_company_contacts_on_company_id_and_contact_id")
+}
+
+model company_profile_codes_and_standards_forms {
+  id                             Int                         @default(autoincrement()) @id
+  code_standard_asme             Boolean?                    @default(false)
+  code_standard_ul               Boolean?                    @default(false)
+  code_standard_api              Boolean?                    @default(false)
+  code_standard_cenelec          Boolean?                    @default(false)
+  code_standard_ce               Boolean?                    @default(false)
+  code_standard_tuv              Boolean?                    @default(false)
+  code_standard_gosh             Boolean?                    @default(false)
+  code_standard_dosh             Boolean?                    @default(false)
+  code_standard_as               Boolean?                    @default(false)
+  code_standard_astm             Boolean?                    @default(false)
+  code_standard_ped              Boolean?                    @default(false)
+  code_standard_iso              Boolean?                    @default(false)
+  export_restrictions            Boolean?
+  export_restriction_description String?
+  company_id                     Int
+  created_at                     DateTime
+  updated_at                     DateTime
+  no_codes_or_standards          Boolean?
+  companies                      companies                   @relation(fields: [company_id], references: [id])
+  buyer_hse_recommendations      buyer_hse_recommendations[]
+
+  @@index([company_id], name: "index_company_profile_codes_and_standards_forms_on_company_id")
+}
+
+model company_profile_hse_forms {
+  id                                   Int                         @default(autoincrement()) @id
+  lwcfr_2019                           Float?
+  lwcfr_2018                           Float?
+  lwcfr_2017                           Float?
+  trcfr_2019                           Float?
+  trcfr_2018                           Float?
+  trcfr_2017                           Float?
+  lwc_days_severity_2019               Float?
+  lwc_days_severity_2018               Float?
+  lwc_days_severity_2017               Float?
+  rwc_days_severity_2019               Float?
+  rwc_days_severity_2018               Float?
+  rwc_days_severity_2017               Float?
+  total_payroll_hours_2019             Float?
+  total_payroll_hours_2018             Float?
+  total_payroll_hours_2017             Float?
+  has_quality_system                   Boolean?
+  is_quality_system_certified          Boolean?
+  quality_system_manual_available      Boolean?
+  can_issue_inspections_and_test_plans Boolean?
+  quality_plans_developed              Boolean?
+  has_health_and_safety_system         Boolean?
+  health_and_safety_system_details     String?
+  has_environmental_system             Boolean?
+  is_environmental_system_accredited   Boolean?
+  company_id                           Int
+  created_at                           DateTime
+  updated_at                           DateTime
+  companies                            companies                   @relation(fields: [company_id], references: [id])
+  buyer_hse_recommendations            buyer_hse_recommendations[]
+
+  @@index([company_id], name: "index_company_profile_hse_forms_on_company_id")
+}
+
+model company_registration_forms {
+  id                          Int       @default(autoincrement()) @id
+  company_id                  Int       @unique
+  supplier_id                 String?
+  parent_company              String?
+  contact_name_1              String?
+  contact_name_2              String?
+  street_address              String?
+  city                        String?
+  state                       String?
+  postal_code                 Int?
+  country                     String?
+  website                     String?
+  telephone                   String?
+  fax                         String?
+  email                       String?
+  created_at                  DateTime
+  updated_at                  DateTime
+  company_registration_number String?
+  date_established            DateTime?
+  company_registration_type   String?
+  products                    String[]
+  services                    String[]
+  core_business               String?
+  product_groups              String?
+  other                       String?
+  export_restrictions         Boolean?
+  company_links               String[]
+  status                      Int?      @default(0)
+  feedback                    String?
+  tax_id_number               String?
+  vat_number                  String?
+  accepted_tos                Boolean?  @default(false)
+  banking_account_number      String?
+  banking_routing_number      String?
+  sale_transaction_fee        Float     @default(12.5)
+  approved_by                 String?
+  duns                        String?
+  company_entity_name         String?
+  invited_by                  String?
+  approved_at                 DateTime?
+  company_type                String[]
+  companies                   companies @relation(fields: [company_id], references: [id])
+}
+
+model company_relationships {
+  id                                                   Int       @default(autoincrement()) @id
+  parent_id                                            Int
+  child_id                                             Int
+  created_at                                           DateTime
+  updated_at                                           DateTime
+  status                                               Int?      @default(0)
+  companies_companiesTocompany_relationships_child_id  companies @relation("companiesTocompany_relationships_child_id", fields: [child_id], references: [id])
+  companies_companiesTocompany_relationships_parent_id companies @relation("companiesTocompany_relationships_parent_id", fields: [parent_id], references: [id])
+
+  @@index([child_id], name: "index_company_relationships_on_child_id")
+  @@index([parent_id], name: "index_company_relationships_on_parent_id")
+}
+
+model company_settings {
+  id                    Int       @default(autoincrement()) @id
+  seller_terms          String?
+  company_id            Int       @unique
+  created_at            DateTime
+  updated_at            DateTime
+  asset_preview_opt_out Boolean?  @default(false)
+  roles_enabled         Boolean?  @default(false)
+  companies             companies @relation(fields: [company_id], references: [id])
+}
+
+model company_signup_links {
+  id         Int       @default(autoincrement()) @id
+  url        String    @unique
+  active     Boolean   @default(true)
+  company_id Int
+  companies  companies @relation(fields: [company_id], references: [id])
+
+  @@index([company_id], name: "index_company_signup_links_on_company_id")
+}
+
+model ethics_anti_bribery_and_slavery_processes {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_ethics_anti_bribery_and_slavery_process")
+  @@index([company_id], name: "index_ethics_anti_bribery_and_slavery_processes_on_company_id")
+}
+
+model ethics_compliance_report_uploads {
+  id                          Int                        @default(autoincrement()) @id
+  buyer_hse_recommendation_id Int?
+  attachment                  String?
+  created_at                  DateTime
+  updated_at                  DateTime
+  buyer_hse_recommendations   buyer_hse_recommendations? @relation(fields: [buyer_hse_recommendation_id], references: [id])
+
+  @@index([buyer_hse_recommendation_id], name: "idx_ethics_compliance_reports")
+}
+
+model ethics_corruption_policies {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_ethics_corruption_policy")
+  @@index([company_id], name: "index_ethics_corruption_policies_on_company_id")
+}
+
+model ethics_criminal_activity_investigations {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_ethics_criminal_activity_investigation")
+  @@index([company_id], name: "index_ethics_criminal_activity_investigations_on_company_id")
+}
+
+model ethics_investigated_for_slave_labors {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_ethics_investigated_for_slave_labor")
+  @@index([company_id], name: "index_ethics_investigated_for_slave_labors_on_company_id")
+}
+
+model ethics_sustainability_policies {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_ethics_sustainability_policy")
+  @@index([company_id], name: "index_ethics_sustainability_policies_on_company_id")
+}
+
+model event_store_events {
+  id          String   @default(dbgenerated()) @id
+  event_type  String
+  // This type is currently not supported.
+  // metadata binary?
+  // This type is currently not supported.
+  // data     binary
+  created_at  DateTime
+
+  @@index([created_at], name: "index_event_store_events_on_created_at")
+  @@index([event_type], name: "index_event_store_events_on_event_type")
+}
+
+model event_store_events_in_streams {
+  id         Int      @default(autoincrement()) @id
+  stream     String
+  position   Int?
+  event_id   String
+  created_at DateTime
+
+  @@index([created_at], name: "index_event_store_events_in_streams_on_created_at")
+  @@unique([stream, event_id], name: "index_event_store_events_in_streams_on_stream_and_event_id")
+  @@unique([stream, position], name: "index_event_store_events_in_streams_on_stream_and_position")
+}
+
+model general_business_classification_uploads {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_general_business_classification_uploads")
+  @@index([company_id], name: "index_general_business_classification_uploads_on_company_id")
+}
+
+model global_admins_videos {
+  id          Int      @default(autoincrement()) @id
+  code        String?
+  title       String?
+  description String?
+  unique_key  String
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model internal_marketplaces {
+  id                       Int             @default(autoincrement()) @id
+  name                     String
+  description              String?
+  primary_color            String?
+  secondary_color          String?
+  logo                     String?
+  created_by_user_id       Int?
+  additional_fields_schema Json?
+  created_at               DateTime
+  updated_at               DateTime
+  slug                     String          @unique
+  navbar_icon              String?
+  company_id               Int?
+  index_name               String?
+  asset_records            asset_records[]
+  packages                 packages[]
+
+  @@index([company_id], name: "index_internal_marketplaces_on_company_id")
+}
+
+model inventory_conditions {
+  id         Int      @default(autoincrement()) @id
+  name       String?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model inventory_management_asset_groups {
+  id                            Int      @default(autoincrement()) @id
+  asset_record_id               Int?
+  inventory_management_group_id Int?
+  created_at                    DateTime
+  updated_at                    DateTime
+}
+
+model inventory_management_groups {
+  id         Int      @default(autoincrement()) @id
+  name       String?
+  company_id Int?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model line_items {
+  id             Int      @default(autoincrement()) @id
+  sale_id        Int
+  description    String?
+  quantity       Int?
+  unit_price     Float?
+  extended_price Float?
+  details        Json?
+  created_at     DateTime
+  updated_at     DateTime
+
+  @@index([sale_id], name: "index_line_items_on_sale_id")
+}
+
+model notifications {
+  id              Int       @default(autoincrement()) @id
+  recipient_id    Int?
+  actor_id        Int?
+  read_at         DateTime?
+  action          String?
+  notifiable_id   Int?
+  notifiable_type String?
+  created_at      DateTime
+  updated_at      DateTime
+  url             String?
+}
+
+// The underlying table does not contain a valid unique identifier and can therefore currently not be handled.
+// model offer_asset_records {
+  // asset_record_id Int?
+  // offer_id        Int?
+  // asset_records   asset_records? @relation(fields: [asset_record_id], references: [id])
+  // offers          offers?        @relation(fields: [offer_id], references: [id])
+
+  // @@index([asset_record_id], name: "index_offer_asset_records_on_asset_record_id")
+  // @@index([offer_id], name: "index_offer_asset_records_on_offer_id")
+// }
+
+model offer_items {
+  id              Int      @default(autoincrement()) @id
+  quantity        Int      @default(1)
+  offer_id        Int
+  created_at      DateTime
+  updated_at      DateTime
+  asset_record_id Int?
+
+  @@index([asset_record_id], name: "index_offer_items_on_asset_record_id")
+  @@index([offer_id], name: "index_offer_items_on_offer_id")
+}
+
+model offers {
+  id                            Int                   @default(autoincrement()) @id
+  buyer_id                      Int
+  seller_id                     Int
+  amount                        Int
+  status                        Int                   @default(0)
+  created_at                    DateTime
+  updated_at                    DateTime
+  asset_record_id               Int?
+  package_id                    Int?
+  quantity                      Int?
+  buyer_company_id              Int?
+  seller_company_id             Int?
+  users_offers_buyer_idTousers  users                 @relation("offers_buyer_idTousers", fields: [buyer_id], references: [id])
+  users_offers_seller_idTousers users                 @relation("offers_seller_idTousers", fields: [seller_id], references: [id])
+  // offer_asset_records        offer_asset_records[]
+  sales                         sales[]
+
+  @@index([asset_record_id], name: "index_offers_on_asset_record_id")
+  @@index([buyer_id], name: "index_offers_on_buyer_id")
+  @@index([buyer_id, status], name: "index_offers_on_buyer_id_and_status")
+  @@index([package_id], name: "index_offers_on_package_id")
+  @@index([seller_id], name: "index_offers_on_seller_id")
+  @@index([seller_id, status], name: "index_offers_on_seller_id_and_status")
+}
+
+model package_attachments {
+  id         Int       @default(autoincrement()) @id
+  attachment String?
+  package_id Int?
+  created_at DateTime
+  updated_at DateTime
+  packages   packages? @relation(fields: [package_id], references: [id])
+
+  @@index([package_id], name: "index_package_attachments_on_package_id")
+}
+
+model package_images {
+  id         Int      @default(autoincrement()) @id
+  image      String?
+  package_id Int?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model packages {
+  id                          Int                    @default(autoincrement()) @id
+  name                        String
+  description                 String?
+  company_id                  Int
+  created_at                  DateTime
+  updated_at                  DateTime
+  user_id                     Int
+  team_id                     Int?
+  condition                   String?
+  country                     String?
+  main_image                  String?
+  minimum_offer_amount        Float?
+  buy_now_amount              Float?
+  seller_terms                String?
+  internal_marketplace_id     Int?
+  status                      Int                    @default(0)
+  must_buy_all                Boolean                @default(false)
+  percent_discount_if_buy_all Int?
+  listed_at                   DateTime?
+  category                    String?                @default("none")
+  subcategory                 String?                @default("none")
+  currency                    String?
+  sale_method                 Int                    @default(2)
+  buy_now_enabled             Boolean?               @default(false)
+  city                        String?
+  state                       String?
+  inventory_type              String?
+  payment_terms               String?
+  inspection                  String?
+  finance                     String?
+  shipping_pickup_details     String?
+  questions                   String?
+  uuid                        String?
+  un_categories               Json?
+  show_minimum_offer_amount   Boolean?               @default(false)
+  internal_marketplaces       internal_marketplaces? @relation(fields: [internal_marketplace_id], references: [id])
+  package_attachments         package_attachments[]
+
+  @@index([company_id], name: "index_packages_on_company_id")
+  @@index([internal_marketplace_id], name: "index_packages_on_internal_marketplace_id")
+  @@index([status], name: "index_packages_on_status")
+  @@index([team_id], name: "index_packages_on_team_id")
+  @@index([user_id], name: "index_packages_on_user_id")
+  @@unique([company_id, user_id, name], name: "index_packages_on_company_id_and_user_id_and_name")
+}
+
+model platform_reliability_metrics {
+  id         Int      @default(autoincrement()) @id
+  company_id String?
+  user_id    String?
+  error      String?
+  summary    String?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model project_commercial_questions {
+  id            Int       @default(autoincrement()) @id
+  project_id    Int
+  company_id    Int
+  user_id       Int
+  question_type Int       @default(0)
+  content       String
+  header        String?
+  subheader     String?
+  created_at    DateTime
+  updated_at    DateTime
+  companies     companies @relation(fields: [company_id], references: [id])
+  projects      projects  @relation(fields: [project_id], references: [id])
+  users         users     @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_project_commercial_questions_on_company_id")
+  @@index([project_id], name: "index_project_commercial_questions_on_project_id")
+  @@index([user_id], name: "index_project_commercial_questions_on_user_id")
+}
+
+model project_members {
+  id            Int        @default(autoincrement()) @id
+  user_id       Int?
+  project_id    Int?
+  company_id    Int?
+  created_at    DateTime
+  updated_at    DateTime
+  project_owner Boolean?   @default(false)
+  companies     companies? @relation(fields: [company_id], references: [id])
+  projects      projects?  @relation(fields: [project_id], references: [id])
+  users         users?     @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_project_members_on_company_id")
+  @@index([project_id], name: "index_project_members_on_project_id")
+  @@index([user_id], name: "index_project_members_on_user_id")
+}
+
+model projects {
+  id                           Int                            @default(autoincrement()) @id
+  name                         String?
+  number                       String?
+  jobsite                      String?
+  created_at                   DateTime
+  updated_at                   DateTime
+  company_id                   Int?
+  project_creator              Int?
+  companies                    companies?                     @relation(fields: [company_id], references: [id])
+  project_commercial_questions project_commercial_questions[]
+  project_members              project_members[]
+
+  @@index([company_id], name: "index_projects_on_company_id")
+}
+
+model recent_activities {
+  id         Int      @default(autoincrement()) @id
+  message    String
+  company_id Int
+  created_at DateTime
+  updated_at DateTime
+
+  @@index([company_id], name: "index_recent_activities_on_company_id")
+}
+
+model relationship_requests {
+  id                                                      Int       @default(autoincrement()) @id
+  acceptor_id                                             Int
+  requestor_id                                            Int
+  status                                                  Int?      @default(0)
+  created_at                                              DateTime
+  updated_at                                              DateTime
+  request_type                                            Int?      @default(0)
+  companies_companiesTorelationship_requests_acceptor_id  companies @relation("companiesTorelationship_requests_acceptor_id", fields: [acceptor_id], references: [id])
+  companies_companiesTorelationship_requests_requestor_id companies @relation("companiesTorelationship_requests_requestor_id", fields: [requestor_id], references: [id])
+
+  @@index([acceptor_id], name: "index_relationship_requests_on_acceptor_id")
+  @@index([requestor_id], name: "index_relationship_requests_on_requestor_id")
+}
+
+model relationships {
+  id          Int      @default(autoincrement()) @id
+  follower_id Int?
+  followed_id Int?
+  created_at  DateTime
+  updated_at  DateTime
+
+  @@index([followed_id], name: "index_relationships_on_followed_id")
+  @@index([follower_id], name: "index_relationships_on_follower_id")
+  @@unique([follower_id, followed_id], name: "index_relationships_on_follower_id_and_followed_id")
+}
+
+model release_notes {
+  id           Int       @default(autoincrement()) @id
+  release_date DateTime?
+  notes        String?
+  created_at   DateTime
+  updated_at   DateTime
+  published    Boolean?  @default(false)
+}
+
+model requisition_comments {
+  id             Int           @default(autoincrement()) @id
+  requisition_id Int?
+  company_id     Int?
+  body           String?
+  created_at     DateTime
+  updated_at     DateTime
+  companies      companies?    @relation(fields: [company_id], references: [id])
+  requisitions   requisitions? @relation(fields: [requisition_id], references: [id])
+
+  @@index([company_id], name: "index_requisition_comments_on_company_id")
+  @@index([requisition_id], name: "index_requisition_comments_on_requisition_id")
+}
+
+model requisition_item_comments {
+  id                  Int                @default(autoincrement()) @id
+  company_id          Int?
+  requisition_item_id Int?
+  body                String?
+  created_at          DateTime
+  updated_at          DateTime
+  companies           companies?         @relation(fields: [company_id], references: [id])
+  requisition_items   requisition_items? @relation(fields: [requisition_item_id], references: [id])
+
+  @@index([company_id], name: "index_requisition_item_comments_on_company_id")
+  @@index([requisition_item_id], name: "index_requisition_item_comments_on_requisition_item_id")
+}
+
+model requisition_items {
+  id                        Int                         @default(autoincrement()) @id
+  requested_price           Float?
+  requested_qty             Int?
+  deleted                   Boolean?                    @default(false)
+  requisition_id            Int?
+  asset_record_id           Int?
+  created_at                DateTime
+  updated_at                DateTime
+  asset_records             asset_records?              @relation(fields: [asset_record_id], references: [id])
+  requisitions              requisitions?               @relation(fields: [requisition_id], references: [id])
+  requisition_item_comments requisition_item_comments[]
+
+  @@index([asset_record_id], name: "index_requisition_items_on_asset_record_id")
+  @@index([requisition_id], name: "index_requisition_items_on_requisition_id")
+}
+
+model requisitions {
+  id                                                  Int                    @default(autoincrement()) @id
+  status                                              String?
+  seller_id                                           Int?
+  buyer_id                                            Int?
+  buyer_company_id                                    Int?
+  seller_company_id                                   Int?
+  sale_id                                             Int?
+  history                                             Json?                  @default("{}")
+  created_at                                          DateTime
+  updated_at                                          DateTime
+  companies_companiesTorequisitions_buyer_company_id  companies?             @relation("companiesTorequisitions_buyer_company_id", fields: [buyer_company_id], references: [id])
+  users_requisitions_buyer_idTousers                  users?                 @relation("requisitions_buyer_idTousers", fields: [buyer_id], references: [id])
+  sales                                               sales?                 @relation(fields: [sale_id], references: [id])
+  companies_companiesTorequisitions_seller_company_id companies?             @relation("companiesTorequisitions_seller_company_id", fields: [seller_company_id], references: [id])
+  users_requisitions_seller_idTousers                 users?                 @relation("requisitions_seller_idTousers", fields: [seller_id], references: [id])
+  requisition_comments                                requisition_comments[]
+  requisition_items                                   requisition_items[]
+
+  @@index([buyer_company_id], name: "index_requisitions_on_buyer_company_id")
+  @@index([buyer_id], name: "index_requisitions_on_buyer_id")
+  @@index([sale_id], name: "index_requisitions_on_sale_id")
+  @@index([seller_company_id], name: "index_requisitions_on_seller_company_id")
+  @@index([seller_id], name: "index_requisitions_on_seller_id")
+}
+
+model rfa_approvals {
+  id         Int      @default(autoincrement()) @id
+  rfq_id     Int
+  user_id    Int?
+  rfa_id     Int
+  created_at DateTime
+  updated_at DateTime
+  rfas       rfas     @relation(fields: [rfa_id], references: [id])
+  rfqs       rfqs     @relation(fields: [rfq_id], references: [id])
+  users      users?   @relation(fields: [user_id], references: [id])
+
+  @@index([rfa_id], name: "index_rfa_approvals_on_rfa_id")
+  @@index([rfq_id], name: "index_rfa_approvals_on_rfq_id")
+  @@index([user_id], name: "index_rfa_approvals_on_user_id")
+}
+
+model rfas {
+  id            Int             @default(autoincrement()) @id
+  notes         String?
+  rfq_id        Int
+  rfq_bid_id    Int?
+  created_at    DateTime
+  updated_at    DateTime
+  rfq_bids      rfq_bids?       @relation(fields: [rfq_bid_id], references: [id])
+  rfqs          rfqs            @relation(fields: [rfq_id], references: [id])
+  rfa_approvals rfa_approvals[]
+
+  @@index([rfq_bid_id], name: "index_rfas_on_rfq_bid_id")
+  @@index([rfq_id], name: "index_rfas_on_rfq_id")
+}
+
+model rfq_audit_log_entries {
+  id                Int       @default(autoincrement()) @id
+  user_id           Int
+  company_id        Int
+  rfq_id            Int
+  event_description String
+  event_data        Json?
+  created_at        DateTime
+  updated_at        DateTime
+  event_type        Int?
+  companies         companies @relation(fields: [company_id], references: [id])
+  rfqs              rfqs      @relation(fields: [rfq_id], references: [id])
+  users             users     @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_rfq_audit_log_entries_on_company_id")
+  @@index([rfq_id], name: "index_rfq_audit_log_entries_on_rfq_id")
+  @@index([user_id], name: "index_rfq_audit_log_entries_on_user_id")
+}
+
+model rfq_bid_commercial_docs {
+  id         Int      @default(autoincrement()) @id
+  rfq_bid_id Int
+  attachment String?
+  created_at DateTime
+  updated_at DateTime
+  rfq_bids   rfq_bids @relation(fields: [rfq_bid_id], references: [id])
+
+  @@index([rfq_bid_id], name: "index_rfq_bid_commercial_docs_on_rfq_bid_id")
+}
+
+model rfq_bid_itemized_prices {
+  id                      Int                   @default(autoincrement()) @id
+  rfq_bid_id              Int
+  item_number             Int?
+  tag                     String?
+  description             String?
+  total_quantity          Int?
+  unit                    String?
+  delivery_site           String?
+  delivery_time           String?
+  unit_price              Float?
+  total_price             Float?
+  currency                String?
+  remarks                 String?
+  created_at              DateTime
+  updated_at              DateTime
+  rfq_deliverable_item_id Int
+  rfq_id                  Int
+  company_id              Int
+  companies               companies             @relation(fields: [company_id], references: [id])
+  rfq_bids                rfq_bids              @relation(fields: [rfq_bid_id], references: [id])
+  rfq_deliverable_items   rfq_deliverable_items @relation(fields: [rfq_deliverable_item_id], references: [id])
+  rfqs                    rfqs                  @relation(fields: [rfq_id], references: [id])
+
+  @@index([company_id], name: "index_rfq_bid_itemized_prices_on_company_id")
+  @@index([rfq_bid_id], name: "index_rfq_bid_itemized_prices_on_rfq_bid_id")
+  @@index([rfq_deliverable_item_id], name: "index_rfq_bid_itemized_prices_on_rfq_deliverable_item_id")
+  @@index([rfq_id], name: "index_rfq_bid_itemized_prices_on_rfq_id")
+}
+
+model rfq_bid_technical_docs {
+  id         Int      @default(autoincrement()) @id
+  rfq_bid_id Int
+  attachment String?
+  created_at DateTime
+  updated_at DateTime
+  rfq_bids   rfq_bids @relation(fields: [rfq_bid_id], references: [id])
+
+  @@index([rfq_bid_id], name: "index_rfq_bid_technical_docs_on_rfq_bid_id")
+}
+
+model rfq_bid_users {
+  id         Int      @default(autoincrement()) @id
+  user_id    Int
+  rfq_bid_id Int
+  created_at DateTime
+  updated_at DateTime
+  rfq_bids   rfq_bids @relation(fields: [rfq_bid_id], references: [id])
+  users      users    @relation(fields: [user_id], references: [id])
+
+  @@index([rfq_bid_id], name: "index_rfq_bid_users_on_rfq_bid_id")
+  @@index([user_id], name: "index_rfq_bid_users_on_user_id")
+}
+
+model rfq_bids {
+  id                                  Int                                   @default(autoincrement()) @id
+  rfq_id                              Int
+  bid_attachment                      String?
+  created_at                          DateTime
+  updated_at                          DateTime
+  bidder_email                        String?
+  company_id                          Int
+  non_compliant                       Boolean?                              @default(false)
+  non_compliant_remarks               String?
+  status                              Int                                   @default(0)
+  commercial_terms_agreed             Boolean?                              @default(false)
+  submitting_user                     Int?
+  technical_terms_agreed              Boolean?                              @default(false)
+  declined_remarks                    String?
+  rfa_attachment                      String?
+  in_progress_date                    DateTime?
+  submitted_date                      DateTime?
+  rfqs                                rfqs                                  @relation(fields: [rfq_id], references: [id])
+  commercial_evaluation_bid_summaries commercial_evaluation_bid_summaries[]
+  commercial_responses                commercial_responses[]
+  rfas                                rfas[]
+  rfq_bid_commercial_docs             rfq_bid_commercial_docs[]
+  rfq_bid_itemized_prices             rfq_bid_itemized_prices[]
+  rfq_bid_technical_docs              rfq_bid_technical_docs[]
+  rfq_bid_users                       rfq_bid_users[]
+  technical_evaluation_bid_summaries  technical_evaluation_bid_summaries[]
+  technical_responses                 technical_responses[]
+
+  @@index([rfq_id], name: "index_rfq_bids_on_rfq_id")
+}
+
+model rfq_commercial_docs {
+  id                        Int       @default(autoincrement()) @id
+  company_id                Int
+  rfq_id                    Int
+  doc_attachment_number     String
+  doc_attachment_title      String
+  document_rev              String?
+  commercial_doc_attachment String?
+  created_at                DateTime
+  updated_at                DateTime
+  external_link             String?
+  companies                 companies @relation(fields: [company_id], references: [id])
+  rfqs                      rfqs      @relation(fields: [rfq_id], references: [id])
+
+  @@index([company_id], name: "index_rfq_commercial_docs_on_company_id")
+  @@index([rfq_id], name: "index_rfq_commercial_docs_on_rfq_id")
+}
+
+model rfq_communication_thread_groups {
+  id                        Int                         @default(autoincrement()) @id
+  subject                   String?
+  rfq_id                    Int
+  created_at                DateTime
+  updated_at                DateTime
+  rfqs                      rfqs                        @relation(fields: [rfq_id], references: [id])
+  commercial_responses      commercial_responses[]
+  rfq_communication_threads rfq_communication_threads[]
+  technical_responses       technical_responses[]
+
+  @@index([rfq_id], name: "index_rfq_communication_thread_groups_on_rfq_id")
+}
+
+model rfq_communication_threads {
+  id                                                                   Int                             @default(autoincrement()) @id
+  rfq_vendor_company_id                                                Int
+  rfq_buyer_company_id                                                 Int
+  created_at                                                           DateTime
+  updated_at                                                           DateTime
+  rfq_communication_thread_group_id                                    Int
+  rfq_id                                                               Int?
+  thread_uuid                                                          String?
+  companies_companiesTorfq_communication_threads_rfq_buyer_company_id  companies                       @relation("companiesTorfq_communication_threads_rfq_buyer_company_id", fields: [rfq_buyer_company_id], references: [id])
+  rfq_communication_thread_groups                                      rfq_communication_thread_groups @relation(fields: [rfq_communication_thread_group_id], references: [id])
+  companies_companiesTorfq_communication_threads_rfq_vendor_company_id companies                       @relation("companiesTorfq_communication_threads_rfq_vendor_company_id", fields: [rfq_vendor_company_id], references: [id])
+  rfq_messages                                                         rfq_messages[]
+
+  @@index([rfq_communication_thread_group_id], name: "idx_rfq_comm_thread_rfq_comm_thread_group")
+  @@index([rfq_buyer_company_id], name: "index_rfq_communication_threads_on_rfq_buyer_company_id")
+  @@index([rfq_id], name: "index_rfq_communication_threads_on_rfq_id")
+  @@index([rfq_vendor_company_id], name: "index_rfq_communication_threads_on_rfq_vendor_company_id")
+}
+
+model rfq_default_commercial_questions {
+  id             Int      @default(autoincrement()) @id
+  question       String
+  created_at     DateTime
+  updated_at     DateTime
+  response_type  String
+  required_field Boolean? @default(false)
+}
+
+model rfq_deliverable_items {
+  id                      Int                       @default(autoincrement()) @id
+  item_number             Int?
+  tag                     String?
+  description             String?
+  total_quantity          Float?
+  unit                    String?
+  delivery_site           String?
+  created_at              DateTime
+  updated_at              DateTime
+  rfq_id                  Int
+  company_id              Int
+  companies               companies                 @relation(fields: [company_id], references: [id])
+  rfqs                    rfqs                      @relation(fields: [rfq_id], references: [id])
+  rfq_bid_itemized_prices rfq_bid_itemized_prices[]
+
+  @@index([company_id], name: "index_rfq_deliverable_items_on_company_id")
+  @@index([rfq_id], name: "index_rfq_deliverable_items_on_rfq_id")
+}
+
+model rfq_message_attachments {
+  id             Int          @default(autoincrement()) @id
+  attachment     String?
+  rfq_message_id Int
+  created_at     DateTime
+  updated_at     DateTime
+  rfq_messages   rfq_messages @relation(fields: [rfq_message_id], references: [id])
+
+  @@index([rfq_message_id], name: "index_rfq_message_attachments_on_rfq_message_id")
+}
+
+model rfq_messages {
+  id                                                                Int                       @default(autoincrement()) @id
+  rfq_communication_thread_id                                       Int
+  rfq_company_message_sender_id                                     Int
+  rfq_company_message_receiver_id                                   Int
+  receiver_read_at                                                  DateTime?
+  body                                                              String
+  created_at                                                        DateTime
+  updated_at                                                        DateTime
+  rfq_id                                                            Int?
+  rfq_communication_threads                                         rfq_communication_threads @relation(fields: [rfq_communication_thread_id], references: [id])
+  companies_companiesTorfq_messages_rfq_company_message_receiver_id companies                 @relation("companiesTorfq_messages_rfq_company_message_receiver_id", fields: [rfq_company_message_receiver_id], references: [id])
+  companies_companiesTorfq_messages_rfq_company_message_sender_id   companies                 @relation("companiesTorfq_messages_rfq_company_message_sender_id", fields: [rfq_company_message_sender_id], references: [id])
+  rfqs                                                              rfqs?                     @relation(fields: [rfq_id], references: [id])
+  rfq_message_attachments                                           rfq_message_attachments[]
+
+  @@index([rfq_communication_thread_id], name: "index_rfq_messages_on_rfq_communication_thread_id")
+  @@index([rfq_company_message_receiver_id], name: "index_rfq_messages_on_rfq_company_message_receiver_id")
+  @@index([rfq_company_message_sender_id], name: "index_rfq_messages_on_rfq_company_message_sender_id")
+  @@index([rfq_id], name: "index_rfq_messages_on_rfq_id")
+}
+
+model rfq_technical_docs {
+  id                       Int       @default(autoincrement()) @id
+  company_id               Int
+  rfq_id                   Int
+  technical_doc_attachment String?
+  created_at               DateTime
+  updated_at               DateTime
+  doc_attachment_number    String?
+  doc_attachment_title     String?
+  document_rev             String?
+  applies_to_item          String?
+  external_link            String?
+  companies                companies @relation(fields: [company_id], references: [id])
+  rfqs                     rfqs      @relation(fields: [rfq_id], references: [id])
+
+  @@index([company_id], name: "index_rfq_technical_docs_on_company_id")
+  @@index([rfq_id], name: "index_rfq_technical_docs_on_rfq_id")
+}
+
+model rfq_user_roles {
+  id         Int      @default(autoincrement()) @id
+  rfq_id     Int
+  user_id    Int?
+  created_at DateTime
+  updated_at DateTime
+  role_type  Int
+  rfqs       rfqs     @relation(fields: [rfq_id], references: [id])
+  users      users?   @relation(fields: [user_id], references: [id])
+
+  @@index([rfq_id], name: "index_rfq_user_roles_on_rfq_id")
+  @@index([user_id], name: "index_rfq_user_roles_on_user_id")
+}
+
+model rfqs {
+  id                                  Int                                   @default(autoincrement()) @id
+  company_id                          Int
+  status_old                          String?
+  due_date                            DateTime?
+  created_at                          DateTime
+  updated_at                          DateTime
+  description                         String?
+  initiator                           String
+  rfq_number                          String?
+  issue_date                          DateTime?
+  name                                String?
+  project_id                          Int
+  approved                            Boolean?                              @default(false)
+  sent                                Boolean?                              @default(false)
+  awaiting_responses_date             DateTime?
+  auto_reminder_sent                  Boolean?                              @default(false)
+  user_id                             Int
+  bids_opened                         Boolean?
+  status                              Int                                   @default(0)
+  commercial_evaluation_completed     Boolean?                              @default(false)
+  technical_evaluation_completed      Boolean?                              @default(false)
+  companies                           companies                             @relation(fields: [company_id], references: [id])
+  users                               users                                 @relation(fields: [user_id], references: [id])
+  commercial_evaluation_bid_summaries commercial_evaluation_bid_summaries[]
+  commercial_questions                commercial_questions[]
+  commercial_responses                commercial_responses[]
+  rfa_approvals                       rfa_approvals[]
+  rfas                                rfas[]
+  rfq_audit_log_entries               rfq_audit_log_entries[]
+  rfq_bid_itemized_prices             rfq_bid_itemized_prices[]
+  rfq_bids                            rfq_bids[]
+  rfq_commercial_docs                 rfq_commercial_docs[]
+  rfq_communication_thread_groups     rfq_communication_thread_groups[]
+  rfq_deliverable_items               rfq_deliverable_items[]
+  rfq_messages                        rfq_messages[]
+  rfq_technical_docs                  rfq_technical_docs[]
+  rfq_user_roles                      rfq_user_roles[]
+  technical_evaluation_bid_summaries  technical_evaluation_bid_summaries[]
+  technical_questions                 technical_questions[]
+  technical_responses                 technical_responses[]
+
+  @@index([company_id], name: "index_rfqs_on_company_id")
+  @@index([user_id], name: "index_rfqs_on_user_id")
+}
+
+model roles {
+  id         Int      @default(autoincrement()) @id
+  name       String?
+  created_at DateTime
+  updated_at DateTime
+}
+
+model sales {
+  id                                           Int                       @default(autoincrement()) @id
+  buyer_id                                     Int
+  seller_id                                    Int
+  sale_type                                    Int?                      @default(0)
+  created_at                                   DateTime
+  updated_at                                   DateTime
+  amount                                       Float?
+  quantity                                     Int?                      @default(0)
+  asset_record_id                              Int?
+  package_id                                   Int?
+  details                                      Json                      @default("{}")
+  buyer_team_id                                Int?
+  seller_team_id                               Int?
+  buyer_company_id                             Int?
+  seller_company_id                            Int?
+  aasm_state                                   String?
+  offer_id                                     Int?
+  seller_logistics_info_for_buyer              String?
+  buyer_logistics_info_for_seller              String?
+  shipping_weight                              Int?
+  shipping_weight_units                        String?
+  shipping_dimension_length                    Int?
+  shipping_dimension_width                     Int?
+  shipping_dimension_height                    Int?
+  shipping_dimension_units                     String?
+  shipping_pickup_address_line_one             String?
+  shipping_pickup_address_line_two             String?
+  shipping_pickup_city                         String?
+  shipping_pickup_state_province_region        String?
+  shipping_pickup_country                      String?
+  shipping_pickup_postal_code                  String?
+  shipping_company_name                        String?
+  shipping_company_id_number                   String?
+  shipping_pickup_time                         String?
+  seller_bank_name                             String?
+  seller_banking_account_number                String?
+  seller_banking_routing_number                String?
+  method                                       String?
+  currency                                     String?
+  package_name                                 String?
+  companies_companiesTosales_buyer_company_id  companies?                @relation("companiesTosales_buyer_company_id", fields: [buyer_company_id], references: [id])
+  teams_sales_buyer_team_idToteams             teams?                    @relation("sales_buyer_team_idToteams", fields: [buyer_team_id], references: [id])
+  offers                                       offers?                   @relation(fields: [offer_id], references: [id])
+  companies_companiesTosales_seller_company_id companies?                @relation("companiesTosales_seller_company_id", fields: [seller_company_id], references: [id])
+  teams_sales_seller_team_idToteams            teams?                    @relation("sales_seller_team_idToteams", fields: [seller_team_id], references: [id])
+  admin_invoices                               admin_invoices[]
+  buyer_proof_of_payments                      buyer_proof_of_payments[]
+  checkouts                                    checkouts[]
+  requisitions                                 requisitions[]
+  shipping_addresses                           shipping_addresses[]
+
+  @@index([buyer_company_id], name: "index_sales_on_buyer_company_id")
+  @@index([buyer_id], name: "index_sales_on_buyer_id")
+  @@index([buyer_team_id], name: "index_sales_on_buyer_team_id")
+  @@index([offer_id], name: "index_sales_on_offer_id")
+  @@index([seller_company_id], name: "index_sales_on_seller_company_id")
+  @@index([seller_id], name: "index_sales_on_seller_id")
+  @@index([seller_team_id], name: "index_sales_on_seller_team_id")
+}
+
+model salesforce_accounts {
+  id                                                              Int         @default(autoincrement()) @id
+  salesforce_account_id                                           String?     @unique
+  account_data                                                    Json?
+  company_id                                                      Int?
+  companies_companiesTosalesforce_accounts_company_id             companies?  @relation("companiesTosalesforce_accounts_company_id", fields: [company_id], references: [id])
+  companies_companies_salesforce_accounts_idTosalesforce_accounts companies[] @relation("companies_salesforce_accounts_idTosalesforce_accounts")
+
+  @@index([company_id], name: "index_salesforce_accounts_on_company_id")
+}
+
+model saved_searches {
+  id          Int      @default(autoincrement()) @id
+  user_id     Int?
+  search_data Json?
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model schema_migrations {
+  version String @id
+}
+
+model shipping_addresses {
+  id                        Int      @default(autoincrement()) @id
+  sale_id                   Int?
+  ship_from_country         String?
+  ship_from_city            String?
+  ship_from_postal_code     String?
+  ship_from_street          String?
+  ship_to_country           String?
+  ship_to_city              String?
+  ship_to_postal_code       String?
+  ship_to_street            String?
+  created_at                DateTime
+  updated_at                DateTime
+  ship_from_additional_info String?
+  ship_to_additional_info   String?
+  ship_to_state_province    String?
+  ship_from_state_province  String?
+  sales                     sales?   @relation(fields: [sale_id], references: [id])
+
+  @@index([sale_id], name: "index_shipping_addresses_on_sale_id")
+}
+
+model shopping_list_searches {
+  id               Int     @default(autoincrement()) @id
+  shopping_list_id Int
+  sku              String?
+  quantity         Int?
+  country          String?
+  category         String?
+}
+
+model shopping_lists {
+  id          Int       @default(autoincrement()) @id
+  name        String?
+  is_complete Boolean?
+  user_id     Int?
+  company_id  Int
+  team_id     Int?
+  description String?
+  companies   companies @relation(fields: [company_id], references: [id])
+  teams       teams?    @relation(fields: [team_id], references: [id])
+  users       users?    @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_shopping_lists_on_company_id")
+  @@index([team_id], name: "index_shopping_lists_on_team_id")
+  @@index([user_id], name: "index_shopping_lists_on_user_id")
+}
+
+model subcategories {
+  id          Int         @default(autoincrement()) @id
+  name        String
+  category_id Int?
+  created_at  DateTime
+  updated_at  DateTime
+  categories  categories? @relation(fields: [category_id], references: [id])
+
+  @@index([category_id], name: "index_subcategories_on_category_id")
+}
+
+model subscription_checkouts {
+  id                                                                           Int             @default(autoincrement()) @id
+  status                                                                       Int?            @default(0)
+  subscription_id                                                              Int?
+  created_at                                                                   DateTime
+  updated_at                                                                   DateTime
+  subscriptions_subscription_checkouts_subscription_idTosubscriptions          subscriptions?  @relation("subscription_checkouts_subscription_idTosubscriptions", fields: [subscription_id], references: [id])
+  subscriptions_subscription_checkoutsTosubscriptions_subscription_checkout_id subscriptions[] @relation("subscription_checkoutsTosubscriptions_subscription_checkout_id")
+
+  @@index([subscription_id], name: "index_subscription_checkouts_on_subscription_id")
+}
+
+model subscriptions {
+  id                                                                                    Int                      @default(autoincrement()) @id
+  tier                                                                                  Int?
+  payment_date                                                                          DateTime?
+  company_id                                                                            Int?
+  created_at                                                                            DateTime
+  updated_at                                                                            DateTime
+  subscription_checkout_id                                                              Int?
+  applicant_email                                                                       String?
+  companies                                                                             companies?               @relation(fields: [company_id], references: [id])
+  subscription_checkouts_subscription_checkoutsTosubscriptions_subscription_checkout_id subscription_checkouts?  @relation("subscription_checkoutsTosubscriptions_subscription_checkout_id", fields: [subscription_checkout_id], references: [id])
+  subscription_checkouts_subscription_checkouts_subscription_idTosubscriptions          subscription_checkouts[] @relation("subscription_checkouts_subscription_idTosubscriptions")
+
+  @@index([company_id], name: "index_subscriptions_on_company_id")
+  @@index([subscription_checkout_id], name: "index_subscriptions_on_subscription_checkout_id")
+}
+
+model supplier_brochures {
+  id                         Int                       @default(autoincrement()) @id
+  supplier_general_detail_id Int?
+  attachment                 String?
+  created_at                 DateTime
+  updated_at                 DateTime
+  company_id                 Int?
+  supplier_general_details   supplier_general_details? @relation(fields: [supplier_general_detail_id], references: [id])
+
+  @@index([company_id], name: "index_supplier_brochures_on_company_id")
+  @@index([supplier_general_detail_id], name: "index_supplier_brochures_on_supplier_general_detail_id")
+}
+
+model supplier_corporate_hse_policy_standards {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_health_safety_env_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_health_safety_envs   supplier_health_safety_envs? @relation(fields: [supplier_health_safety_env_id], references: [id])
+
+  @@index([supplier_health_safety_env_id], name: "idx_supplier_corp_hse_policy_attachment_health_safety_env")
+  @@index([company_id], name: "index_supplier_corporate_hse_policy_standards_on_company_id")
+}
+
+model supplier_environment_management_certifications {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_health_safety_env_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_health_safety_envs   supplier_health_safety_envs? @relation(fields: [supplier_health_safety_env_id], references: [id])
+
+  @@index([supplier_health_safety_env_id], name: "idx_supplier_env_mgmt_cert_attachment_health_safety_env")
+  @@index([company_id], name: "sup_env_management_certs")
+}
+
+model supplier_ethics_corp_responsibility_policies {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_ethics_corp_responsibility_policy")
+  @@index([company_id], name: "sup_reg_ethics_corp_resp")
+}
+
+model supplier_financial_details {
+  id                              Int                             @default(autoincrement()) @id
+  duns_number                     String?
+  annual_sales_turn_over_amount   Int?
+  annual_sales_turn_over_currency String?
+  annual_cash_flow_amount         Int?
+  annual_cash_flow_currency       String?
+  primary_insurer_name            String?
+  primary_insurer_address         String?
+  primary_insurer_contact_info    String?
+  feedback                        String?
+  supplier_profile_id             Int?
+  created_at                      DateTime
+  updated_at                      DateTime
+  company_id                      Int?
+  supplier_profiles               supplier_profiles?              @relation(fields: [supplier_profile_id], references: [id])
+  supplier_financial_statements   supplier_financial_statements[]
+
+  @@index([company_id], name: "index_supplier_financial_details_on_company_id")
+  @@index([supplier_profile_id], name: "index_supplier_financial_details_on_supplier_profile_id")
+}
+
+model supplier_financial_statements {
+  id                           Int                         @default(autoincrement()) @id
+  attachment                   String?
+  supplier_financial_detail_id Int?
+  created_at                   DateTime
+  updated_at                   DateTime
+  company_id                   Int?
+  supplier_financial_details   supplier_financial_details? @relation(fields: [supplier_financial_detail_id], references: [id])
+
+  @@index([supplier_financial_detail_id], name: "idx_supplier_financial_statement_financial_details")
+  @@index([company_id], name: "index_supplier_financial_statements_on_company_id")
+}
+
+model supplier_general_details {
+  id                                    Int                  @default(autoincrement()) @id
+  websites                              String[]
+  address                               String?
+  principal_contact_name                String?
+  principal_contact_email_address       String?
+  principal_contact_mobile_phone_number String?
+  feedback                              String?
+  supplier_profile_id                   Int?
+  created_at                            DateTime
+  updated_at                            DateTime
+  company_id                            Int?
+  supplier_profiles                     supplier_profiles?   @relation(fields: [supplier_profile_id], references: [id])
+  supplier_brochures                    supplier_brochures[]
+
+  @@index([company_id], name: "index_supplier_general_details_on_company_id")
+  @@index([supplier_profile_id], name: "index_supplier_general_details_on_supplier_profile_id")
+}
+
+model supplier_health_safety_envs {
+  id                                                     Int                                                @default(autoincrement()) @id
+  health_and_safety_management_system_certification_type String?
+  health_and_safety_management_certification_links       String[]
+  corporate_hse_policy_standard_links                    String[]
+  environmental_management_system_certification_type     String?
+  environmental_management_certification_links           String[]
+  feedback                                               String?
+  supplier_profile_id                                    Int?
+  created_at                                             DateTime
+  updated_at                                             DateTime
+  company_id                                             Int?
+  supplier_profiles                                      supplier_profiles?                                 @relation(fields: [supplier_profile_id], references: [id])
+  supplier_corporate_hse_policy_standards                supplier_corporate_hse_policy_standards[]
+  supplier_environment_management_certifications         supplier_environment_management_certifications[]
+  supplier_health_safety_management_certifications       supplier_health_safety_management_certifications[]
+
+  @@index([company_id], name: "index_supplier_health_safety_envs_on_company_id")
+  @@index([supplier_profile_id], name: "index_supplier_health_safety_envs_on_supplier_profile_id")
+}
+
+model supplier_health_safety_management_certifications {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_health_safety_env_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_health_safety_envs   supplier_health_safety_envs? @relation(fields: [supplier_health_safety_env_id], references: [id])
+
+  @@index([supplier_health_safety_env_id], name: "idx_supplier_health_safety_cert_attachment_health_safety_env")
+  @@index([company_id], name: "sup_health_safety_management_certs")
+}
+
+model supplier_product_and_offerings {
+  id                                 Int                                 @default(autoincrement()) @id
+  product_and_services_catalog_links String[]
+  product_export_restrictions        String?
+  feedback                           String?
+  supplier_profile_id                Int?
+  created_at                         DateTime
+  updated_at                         DateTime
+  company_id                         Int?
+  supplier_profiles                  supplier_profiles?                  @relation(fields: [supplier_profile_id], references: [id])
+  supplier_product_service_catalogs  supplier_product_service_catalogs[]
+
+  @@index([company_id], name: "index_supplier_product_and_offerings_on_company_id")
+  @@index([supplier_profile_id], name: "index_supplier_product_and_offerings_on_supplier_profile_id")
+}
+
+model supplier_product_service_catalogs {
+  id                               Int                             @default(autoincrement()) @id
+  supplier_product_and_offering_id Int?
+  attachment                       String?
+  created_at                       DateTime
+  updated_at                       DateTime
+  company_id                       Int?
+  supplier_product_and_offerings   supplier_product_and_offerings? @relation(fields: [supplier_product_and_offering_id], references: [id])
+
+  @@index([supplier_product_and_offering_id], name: "idx_supplier_product_service_attachment_product_offering")
+  @@index([company_id], name: "index_supplier_product_service_catalogs_on_company_id")
+}
+
+model supplier_profiles {
+  id                               Int                                @default(autoincrement()) @id
+  status                           Int?
+  company_id                       Int?
+  created_at                       DateTime
+  updated_at                       DateTime
+  companies                        companies?                         @relation(fields: [company_id], references: [id])
+  supplier_financial_details       supplier_financial_details[]
+  supplier_general_details         supplier_general_details[]
+  supplier_health_safety_envs      supplier_health_safety_envs[]
+  supplier_product_and_offerings   supplier_product_and_offerings[]
+  supplier_quality_mgmt_assurances supplier_quality_mgmt_assurances[]
+
+  @@index([company_id], name: "index_supplier_profiles_on_company_id")
+}
+
+model supplier_qualifications {
+  id             Int        @default(autoincrement()) @id
+  status         Int?       @default(0)
+  effective_date DateTime?
+  company_id     Int?
+  created_at     DateTime
+  updated_at     DateTime
+  companies      companies? @relation(fields: [company_id], references: [id])
+
+  @@index([company_id], name: "index_supplier_qualifications_on_company_id")
+}
+
+model supplier_quality_assurances {
+  id                                 Int                               @default(autoincrement()) @id
+  supplier_quality_mgmt_assurance_id Int?
+  attachment                         String?
+  created_at                         DateTime
+  updated_at                         DateTime
+  supplier_quality_mgmt_assurances   supplier_quality_mgmt_assurances? @relation(fields: [supplier_quality_mgmt_assurance_id], references: [id])
+
+  @@index([supplier_quality_mgmt_assurance_id], name: "idx_supplier_quality_assur_attachment_qlty_mgmt_assur")
+}
+
+model supplier_quality_mgmt_assurances {
+  id                             Int                              @default(autoincrement()) @id
+  system_certification_type      String?
+  system_certification_links     String[]
+  quality_assurance_policy       String?
+  quality_assurance_links        String[]
+  feedback                       String?
+  supplier_profile_id            Int?
+  created_at                     DateTime
+  updated_at                     DateTime
+  company_id                     Int?
+  supplier_profiles              supplier_profiles?               @relation(fields: [supplier_profile_id], references: [id])
+  supplier_quality_assurances    supplier_quality_assurances[]
+  supplier_system_certifications supplier_system_certifications[]
+
+  @@index([company_id], name: "index_supplier_quality_mgmt_assurances_on_company_id")
+  @@index([supplier_profile_id], name: "index_supplier_quality_mgmt_assurances_on_supplier_profile_id")
+}
+
+model supplier_reg_brochures {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_id], name: "index_supplier_reg_brochures_on_company_id")
+  @@index([supplier_registration_form_id], name: "index_supplier_reg_brochures_on_supplier_registration_form_id")
+}
+
+model supplier_reg_certificates {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_reg_cert_reg_form")
+  @@index([company_id], name: "index_supplier_reg_certificates_on_company_id")
+}
+
+model supplier_reg_environmental_standard_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  expiration_date               DateTime?
+  company_id                    Int?
+  company_profile_hse_form_id   Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_profile_hse_form_id], name: "idx_hse_form_environmental_standard_docs")
+  @@index([supplier_registration_form_id], name: "idx_supplier_env_stand_doc_reg_form")
+  @@index([company_id], name: "sup_reg_env_standard_docs")
+}
+
+model supplier_reg_ethics_trafficking_policies {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_ethics_trafficking_policy")
+  @@index([company_id], name: "sup_reg_ethics_policies")
+}
+
+model supplier_reg_financial_reports {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_fin_rep_reg_form")
+  @@index([company_id], name: "index_supplier_reg_financial_reports_on_company_id")
+}
+
+model supplier_reg_gen_information_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  expiration_date               DateTime?
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_gen_info_reg_form")
+  @@index([company_id], name: "index_supplier_reg_gen_information_documents_on_company_id")
+}
+
+model supplier_reg_hse_system_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  expiration_date               DateTime?
+  company_id                    Int?
+  company_profile_hse_form_id   Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_profile_hse_form_id], name: "idx_hse_form_hse_system_docs")
+  @@index([supplier_registration_form_id], name: "idx_supplier_hse_sys_doc_reg_form")
+  @@index([company_id], name: "index_supplier_reg_hse_system_documents_on_company_id")
+}
+
+model supplier_reg_ins_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  expiration_date               DateTime?
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_ins_doc_reg_form")
+  @@index([company_id], name: "index_supplier_reg_ins_documents_on_company_id")
+}
+
+model supplier_reg_licenses {
+  id                            Int                          @default(autoincrement()) @id
+  attachment                    String?
+  supplier_registration_form_id Int?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_id], name: "index_supplier_reg_licenses_on_company_id")
+  @@index([supplier_registration_form_id], name: "index_supplier_reg_licenses_on_supplier_registration_form_id")
+}
+
+model supplier_reg_previous_work_history_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_work_history_reg_form")
+  @@index([company_id], name: "sup_reg_prev_work_history_docs")
+}
+
+model supplier_reg_principal_customers {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  percent_turnover              Int?
+  name                          String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_principal_customers_reg_form")
+  @@index([company_id], name: "index_supplier_reg_principal_customers_on_company_id")
+}
+
+model supplier_reg_quality_standard_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  expiration_date               DateTime?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  company_profile_hse_form_id   Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([company_profile_hse_form_id], name: "idx_hse_form_quality_standard_docs")
+  @@index([supplier_registration_form_id], name: "idx_supplier_reg_quality_doc_reg_form")
+  @@index([company_id], name: "index_supplier_reg_quality_standard_documents_on_company_id")
+}
+
+model supplier_reg_similar_supply_documents {
+  id                            Int                          @default(autoincrement()) @id
+  supplier_registration_form_id Int?
+  attachment                    String?
+  created_at                    DateTime
+  updated_at                    DateTime
+  company_id                    Int?
+  supplier_registration_forms   supplier_registration_forms? @relation(fields: [supplier_registration_form_id], references: [id])
+
+  @@index([supplier_registration_form_id], name: "idx_supplier_similar_supply_reg_form")
+  @@index([company_id], name: "index_supplier_reg_similar_supply_documents_on_company_id")
+}
+
+model supplier_registration_form_feedback_comments {
+  id                          Int                        @default(autoincrement()) @id
+  buyer_hse_recommendation_id Int?
+  body                        String?
+  status                      String?                    @default("new")
+  created_at                  DateTime
+  updated_at                  DateTime
+  buyer_hse_recommendations   buyer_hse_recommendations? @relation(fields: [buyer_hse_recommendation_id], references: [id])
+
+  @@index([buyer_hse_recommendation_id], name: "idx_supplier_feedback_hse_rec")
+}
+
+model supplier_registration_forms {
+  id                                                        Int                                             @default(autoincrement()) @id
+  company_name                                              String?
+  supplier_id_number                                        String?
+  parent_company                                            String?
+  contact_names                                             String?
+  telephone                                                 String?
+  email                                                     String?
+  company_registration_type                                 String?
+  date_established                                          DateTime?
+  products                                                  String[]
+  services                                                  String[]
+  core_business                                             String[]
+  product_groups                                            String?
+  export_restrictions                                       Boolean?                                        @default(false)
+  code_standard_asme                                        Boolean?                                        @default(false)
+  code_standard_ul                                          Boolean?                                        @default(false)
+  code_standard_api                                         Boolean?                                        @default(false)
+  code_standard_cenelec                                     Boolean?                                        @default(false)
+  code_standard_ce                                          Boolean?                                        @default(false)
+  code_standard_tuv                                         Boolean?                                        @default(false)
+  code_standard_gosh                                        Boolean?                                        @default(false)
+  code_standard_dosh                                        Boolean?                                        @default(false)
+  code_standard_as                                          Boolean?                                        @default(false)
+  code_standard_astm                                        Boolean?                                        @default(false)
+  countries_of_operation                                    String[]
+  main_competitors                                          String?
+  financial_turnover                                        Int?
+  last_annual_report_profit_after_tax_and_interest          Int?
+  duns                                                      String?
+  duns_rating                                               String?
+  quality_system                                            Boolean?
+  quality_system_certification                              Boolean?                                        @default(false)
+  quality_system_standard_applied                           String?
+  existing_environmental_system                             Boolean?
+  existing_health_and_safety_system                         Boolean?
+  health_and_safety_system_standard_applied                 String?
+  quality_manual_available                                  Boolean?                                        @default(false)
+  inspection_test_plans_in_place_and_complied_with          Boolean?                                        @default(false)
+  quality_plans_developed                                   Boolean?                                        @default(false)
+  company_business_present                                  String?
+  typical_test_plan_for_similar_supply                      String?
+  average_project_size_currency                             String?
+  average_project_size_amount                               Int?
+  current_year_project_size_currency                        String?
+  current_year_project_size_amount                          Int?
+  previous_year_project_size_currency                       String?
+  previous_year_project_size_amount                         Int?
+  current_enquiry_percent_total_capacity                    Int?
+  company_id                                                Int?
+  created_at                                                DateTime
+  updated_at                                                DateTime
+  requis_directory_id                                       String?
+  export_restriction_description                            String?
+  environmental_system_standard_applied                     Boolean?                                        @default(false)
+  environmental_practices                                   Boolean?                                        @default(false)
+  current_workload_percentage                               Int?
+  financial_turnover_currency                               String?
+  last_annual_report_profit_after_tax_and_interest_currency String?
+  old_ethics_service_provided                               String?
+  ethics_government_interaction                             Boolean?
+  ethics_government_entity_involved                         String?
+  ethics_scale_of_operations                                String?
+  ethics_country_receive_payment                            String?
+  ethics_potential_pollution                                String?
+  ethics_child_trafficking                                  Boolean?
+  ethics_corporate_responsibility                           Boolean?
+  ethics_sustainability_policy                              Boolean?
+  ethics_corruption_policy                                  Boolean?
+  old_ethics_anti_bribery_training                          String?
+  ethics_code_of_conduct_agreement                          Boolean?
+  ethics_subject_to_sanctions                               Boolean?
+  ethics_has_anti_bribery_and_slavery_process               Boolean?
+  ethics_investigated_for_slave_labor                       Boolean?
+  ethics_investigated_criminal_activity                     Boolean?
+  ethics_relations_with_worley_details                      String?
+  ethics_relatives_of_government_officials                  Boolean?
+  un_data                                                   Json?
+  business_classifications                                  String[]
+  company_registration_number                               String?
+  website                                                   String?
+  contact_job_title                                         String?
+  contact_first_name                                        String?
+  contact_last_name                                         String?
+  code_standard_ped                                         Boolean?                                        @default(false)
+  code_standard_iso                                         Boolean?                                        @default(false)
+  ethics_service_provided                                   String[]
+  ethics_types_of_work                                      String[]
+  ethics_special_employee_groups                            String[]
+  ethics_payments_to_non_contract_country                   Boolean?
+  ethics_payments_to_non_contract_country_details           String?
+  ethics_anti_bribery_training                              Boolean?
+  ethics_anti_bribery_training_details                      String?
+  ethics_privacy_policy                                     Boolean?
+  supplier_risk_score                                       Int?
+  ethics_relations_with_worley                              Boolean?
+  company_type                                              String[]
+  companies                                                 companies?                                      @relation(fields: [company_id], references: [id])
+  buyer_hse_recommendations                                 buyer_hse_recommendations[]
+  codes_and_standards_certificate_uploads                   codes_and_standards_certificate_uploads[]
+  codes_and_standards_other_doc_uploads                     codes_and_standards_other_doc_uploads[]
+  ethics_anti_bribery_and_slavery_processes                 ethics_anti_bribery_and_slavery_processes[]
+  ethics_corruption_policies                                ethics_corruption_policies[]
+  ethics_criminal_activity_investigations                   ethics_criminal_activity_investigations[]
+  ethics_investigated_for_slave_labors                      ethics_investigated_for_slave_labors[]
+  ethics_sustainability_policies                            ethics_sustainability_policies[]
+  general_business_classification_uploads                   general_business_classification_uploads[]
+  supplier_ethics_corp_responsibility_policies              supplier_ethics_corp_responsibility_policies[]
+  supplier_reg_brochures                                    supplier_reg_brochures[]
+  supplier_reg_certificates                                 supplier_reg_certificates[]
+  supplier_reg_environmental_standard_documents             supplier_reg_environmental_standard_documents[]
+  supplier_reg_ethics_trafficking_policies                  supplier_reg_ethics_trafficking_policies[]
+  supplier_reg_financial_reports                            supplier_reg_financial_reports[]
+  supplier_reg_gen_information_documents                    supplier_reg_gen_information_documents[]
+  supplier_reg_hse_system_documents                         supplier_reg_hse_system_documents[]
+  supplier_reg_ins_documents                                supplier_reg_ins_documents[]
+  supplier_reg_licenses                                     supplier_reg_licenses[]
+  supplier_reg_previous_work_history_documents              supplier_reg_previous_work_history_documents[]
+  supplier_reg_principal_customers                          supplier_reg_principal_customers[]
+  supplier_reg_quality_standard_documents                   supplier_reg_quality_standard_documents[]
+  supplier_reg_similar_supply_documents                     supplier_reg_similar_supply_documents[]
+
+  @@index([company_id], name: "index_supplier_registration_forms_on_company_id")
+}
+
+model supplier_system_certifications {
+  id                                 Int                               @default(autoincrement()) @id
+  supplier_quality_mgmt_assurance_id Int?
+  attachment                         String?
+  created_at                         DateTime
+  updated_at                         DateTime
+  company_id                         Int?
+  supplier_quality_mgmt_assurances   supplier_quality_mgmt_assurances? @relation(fields: [supplier_quality_mgmt_assurance_id], references: [id])
+
+  @@index([supplier_quality_mgmt_assurance_id], name: "idx_supplier_system_certifications_attachment_qlty_mgmt_assur")
+  @@index([company_id], name: "index_supplier_system_certifications_on_company_id")
+}
+
+model support_chats {
+  id          Int      @default(autoincrement()) @id
+  sender_id   Int?
+  checkout_id Int?
+  text        String?
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model teams {
+  id                                Int              @default(autoincrement()) @id
+  name                              String?
+  created_at                        DateTime
+  updated_at                        DateTime
+  company_id                        Int
+  bulk_uploads                      bulk_uploads[]
+  sales_sales_buyer_team_idToteams  sales[]          @relation("sales_buyer_team_idToteams")
+  sales_sales_seller_team_idToteams sales[]          @relation("sales_seller_team_idToteams")
+  shopping_lists                    shopping_lists[]
+  teams_users                       teams_users[]
+
+  @@index([company_id], name: "index_teams_on_company_id")
+}
+
+model teams_users {
+  id         Int      @default(autoincrement()) @id
+  team_id    Int?
+  user_id    Int?
+  admin      Boolean?
+  created_at DateTime
+  updated_at DateTime
+  teams      teams?   @relation(fields: [team_id], references: [id])
+  users      users?   @relation(fields: [user_id], references: [id])
+
+  @@index([team_id], name: "index_teams_users_on_team_id")
+  @@index([user_id], name: "index_teams_users_on_user_id")
+  @@unique([team_id, user_id], name: "index_teams_users_on_team_id_and_user_id")
+}
+
+model technical_evaluation_bid_summaries {
+  id            Int      @default(autoincrement()) @id
+  rfq_id        Int
+  rfq_bid_id    Int
+  summary_notes String?
+  created_at    DateTime
+  updated_at    DateTime
+  acceptable    Boolean? @default(false)
+  rfq_bids      rfq_bids @relation(fields: [rfq_bid_id], references: [id])
+  rfqs          rfqs     @relation(fields: [rfq_id], references: [id])
+
+  @@index([rfq_bid_id], name: "index_technical_evaluation_bid_summaries_on_rfq_bid_id")
+  @@index([rfq_id], name: "index_technical_evaluation_bid_summaries_on_rfq_id")
+}
+
+model technical_questions {
+  id                  Int                   @default(autoincrement()) @id
+  rfq_id              Int
+  company_id          Int
+  user_id             Int
+  question_type       Int                   @default(0)
+  content             String
+  header              String?
+  subheader           String?
+  created_at          DateTime
+  updated_at          DateTime
+  companies           companies             @relation(fields: [company_id], references: [id])
+  rfqs                rfqs                  @relation(fields: [rfq_id], references: [id])
+  users               users                 @relation(fields: [user_id], references: [id])
+  technical_responses technical_responses[]
+
+  @@index([company_id], name: "index_technical_questions_on_company_id")
+  @@index([rfq_id], name: "index_technical_questions_on_rfq_id")
+  @@index([user_id], name: "index_technical_questions_on_user_id")
+}
+
+model technical_responses {
+  id                                Int                              @default(autoincrement()) @id
+  rfq_id                            Int
+  rfq_bid_id                        Int
+  technical_question_id             Int
+  company_id                        Int
+  user_id                           Int?
+  content                           String?
+  accepted                          Boolean?
+  feedback                          String?
+  created_at                        DateTime
+  updated_at                        DateTime
+  rfq_communication_thread_group_id Int?
+  companies                         companies                        @relation(fields: [company_id], references: [id])
+  rfq_bids                          rfq_bids                         @relation(fields: [rfq_bid_id], references: [id])
+  rfq_communication_thread_groups   rfq_communication_thread_groups? @relation(fields: [rfq_communication_thread_group_id], references: [id])
+  rfqs                              rfqs                             @relation(fields: [rfq_id], references: [id])
+  technical_questions               technical_questions              @relation(fields: [technical_question_id], references: [id])
+  users                             users?                           @relation(fields: [user_id], references: [id])
+
+  @@index([company_id], name: "index_technical_responses_on_company_id")
+  @@index([rfq_bid_id], name: "index_technical_responses_on_rfq_bid_id")
+  @@index([rfq_communication_thread_group_id], name: "index_technical_responses_on_rfq_communication_thread_group_id")
+  @@index([rfq_id], name: "index_technical_responses_on_rfq_id")
+  @@index([technical_question_id], name: "index_technical_responses_on_technical_question_id")
+  @@index([user_id], name: "index_technical_responses_on_user_id")
+  @@unique([rfq_bid_id, technical_question_id], name: "index_technical_response_uniqueness")
+}
+
+model terms_of_uses {
+  id         Int      @default(autoincrement()) @id
+  contents   String
+  created_at DateTime
+  updated_at DateTime
+}
+
+model united_nations_categories {
+  id                Int      @default(autoincrement()) @id
+  un_segment_code   Int?
+  un_segment        String?
+  un_family_code    Int?
+  un_family         String?
+  un_class_code     Int?
+  un_class          String?
+  un_commodity_code Int?
+  un_commodity      String?
+  created_at        DateTime
+  updated_at        DateTime
+
+  @@index([un_class], name: "index_united_nations_categories_on_un_class")
+  @@index([un_class_code], name: "index_united_nations_categories_on_un_class_code")
+  @@index([un_commodity], name: "index_united_nations_categories_on_un_commodity")
+  @@index([un_commodity_code], name: "index_united_nations_categories_on_un_commodity_code")
+  @@index([un_family], name: "index_united_nations_categories_on_un_family")
+  @@index([un_family_code], name: "index_united_nations_categories_on_un_family_code")
+  @@index([un_segment], name: "index_united_nations_categories_on_un_segment")
+  @@index([un_segment_code], name: "index_united_nations_categories_on_un_segment_code")
+}
+
+model user_roles {
+  id         Int      @default(autoincrement()) @id
+  user_id    Int
+  role_id    Int
+  created_at DateTime
+  updated_at DateTime
+}
+
+model user_settings {
+  id                  Int      @default(autoincrement()) @id
+  nav_tooltips        Boolean? @default(true)
+  created_at          DateTime
+  updated_at          DateTime
+  user_id             Int?     @unique
+  default_marketplace Int?
+  default_table_view  String?  @default("table")
+  auto_sign_out_limit Int?     @default(40)
+  email_notifications Boolean? @default(true)
+  time_zone           String?  @default("UTC")
+  currency            String?  @default("USD")
+}
+
+model user_watched_asset_records {
+  id              Int            @default(autoincrement()) @id
+  user_id         Int?
+  asset_record_id Int?
+  created_at      DateTime
+  updated_at      DateTime
+  asset_records   asset_records? @relation(fields: [asset_record_id], references: [id])
+  users           users?         @relation(fields: [user_id], references: [id])
+
+  @@index([asset_record_id], name: "index_user_watched_asset_records_on_asset_record_id")
+  @@index([user_id], name: "index_user_watched_asset_records_on_user_id")
+}
+
+model users {
+  id                                         Int                            @default(autoincrement()) @id
+  email                                      String                         @unique
+  password_digest                            String?
+  created_at                                 DateTime
+  updated_at                                 DateTime
+  profile_pic                                String?
+  title                                      String?
+  phone                                      String?
+  interests                                  String[]
+  team_affiliations                          String[]
+  first_name                                 String?
+  last_name                                  String?
+  country                                    String?
+  company_id                                 Int
+  company_admin                              Boolean?                       @default(false)
+  security_question                          String?
+  security_answer                            String?
+  email_confirmed                            Boolean                        @default(false)
+  confirm_token                              String?
+  reset_digest                               String?
+  reset_sent_at                              DateTime?
+  customized_password                        Boolean?                       @default(false)
+  last_logged_in                             DateTime?
+  onboarding_done                            Boolean?                       @default(false)
+  global_admin                               Boolean?                       @default(false)
+  feature_flag_user                          Boolean?                       @default(false)
+  invited_by                                 String?
+  signup_link_admin_approved                 Boolean?
+  asset_records                              asset_records[]
+  bulk_uploads                               bulk_uploads[]
+  commercial_questions                       commercial_questions[]
+  commercial_responses                       commercial_responses[]
+  offers_offers_buyer_idTousers              offers[]                       @relation("offers_buyer_idTousers")
+  offers_offers_seller_idTousers             offers[]                       @relation("offers_seller_idTousers")
+  project_commercial_questions               project_commercial_questions[]
+  project_members                            project_members[]
+  requisitions_requisitions_buyer_idTousers  requisitions[]                 @relation("requisitions_buyer_idTousers")
+  requisitions_requisitions_seller_idTousers requisitions[]                 @relation("requisitions_seller_idTousers")
+  rfa_approvals                              rfa_approvals[]
+  rfq_audit_log_entries                      rfq_audit_log_entries[]
+  rfq_bid_users                              rfq_bid_users[]
+  rfq_user_roles                             rfq_user_roles[]
+  rfqs                                       rfqs[]
+  shopping_lists                             shopping_lists[]
+  teams_users                                teams_users[]
+  technical_questions                        technical_questions[]
+  technical_responses                        technical_responses[]
+  user_watched_asset_records                 user_watched_asset_records[]
+  watched_items                              watched_items[]
+
+  @@index([company_id], name: "index_users_on_company_id")
+}
+
+model vanity_urls {
+  id              Int      @default(autoincrement()) @id
+  destination_url String?
+  incoming_slug   String?
+  created_at      DateTime
+  updated_at      DateTime
+  clicks          Int?     @default(0)
+  referrer        String[]
+
+  @@index([incoming_slug], name: "index_vanity_urls_on_incoming_slug")
+}
+
+model verticals {
+  id          Int      @default(autoincrement()) @id
+  name        String?
+  description String?
+  created_at  DateTime
+  updated_at  DateTime
+}
+
+model watched_items {
+  id             Int      @default(autoincrement()) @id
+  user_id        Int?
+  watchable_id   Int?
+  watchable_type String?
+  created_at     DateTime
+  updated_at     DateTime
+  users          users?   @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], name: "index_watched_items_on_user_id")
+  @@index([watchable_type, watchable_id], name: "index_watched_items_on_watchable_type_and_watchable_id")
+}
